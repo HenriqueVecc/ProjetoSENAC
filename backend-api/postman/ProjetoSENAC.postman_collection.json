@@ -1,0 +1,454 @@
+{
+	"info": {
+		"_postman_id": "a87ef71d-0291-48d0-a10f-c2857c729ad7",
+		"name": "Trabalho senac",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "45459691",
+		"_collection_link": "https://red-robot-85984.postman.co/workspace/Cod.-express---API~936d4cd3-3d46-4430-835e-1e58c2a67ab8/collection/45459691-a87ef71d-0291-48d0-a10f-c2857c729ad7?action=share&source=collection_link&creator=45459691"
+	},
+	"item": [
+		{
+			"name": "Register",
+			"item": [
+				{
+					"name": "New token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"username\":\"center@abc.com\",\r\n    \"password\":\"Senha@123\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/token/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"token",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Register",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Centro ABCd\",\r\n  \"email\": \"center@abcd.com\",\r\n  \"password\": \"Senha@123\",\r\n  \"type\": \"CENTER\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/register/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"register",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"refresh\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoicmVmcmVzaCIsImV4cCI6MTczMzQzOTYwMCwiaWF0IjoxNzMzNDM5NTQwLCJqdGkiOiI4NWZiNmJjMjM5M2Q0OGRhODk1NjQyZDdiNzI4MTlmMCIsInVzZXJfaWQiOjE2LCJ1c2VybmFtZSI6ImVyaXZlbHRvbi5tZWxsbyIsInNlY3RvciI6MTJ9.m7HU8uiYb8Gn0Rf3hCDjIuf2HJukRp8HbVbavcSWTus\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/token/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"token",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Token",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"token\": \"eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzUxOTcyMjU3LCJpYXQiOjE3NTE5MjkwNTcsImp0aSI6IjhlYmE0YjJmYzEwMTQ2NDM5MWQwYWVjY2MxMjhiZjViIiwidXNlcl9pZCI6Mn0.By_aNuSJ18-pwKm6nymL7LSIjsymJ-9SHRjXXxzdAGo\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/refresh/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"refresh",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "centers",
+			"item": [
+				{
+					"name": "List centers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcyNDEwMjM3LCJpYXQiOjE3NzIzOTU4MzcsImp0aSI6ImIzMDMyY2Q3YjI0OTQ4M2Q4NzI4ODlhZTNkMTZhMzJkIiwidXNlcl9pZCI6IjQifQ.lsOrsMYQ8RM0VFt-1yhUQiqXkuVft8f1YECgI_XC6TM",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/centers/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"centers",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create center",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcyNDExNjAzLCJpYXQiOjE3NzIzOTcyMDMsImp0aSI6IjkxMzg0ZGIwY2VjNzQwOWM5NzY0NzZiMzQyODhkZGU0IiwidXNlcl9pZCI6IjUifQ.6bZ4UWI1CVBi-ZMPLK0gsDmKpnSyAnnhNqdgVisYY50",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"name\": \"Centro de Reciclagem ABCs\",\r\n  \"address\": \"Rua X, 123 - SP\",\r\n  \"phone\": \"(11) 99999-9999\",\r\n  \"description\": \"Coletamos papel, plástico e vidro.\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/centers/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"centers",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Details center",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/centers/1/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"centers",
+								"1",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Requests",
+			"item": [
+				{
+					"name": "List requests",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/material-types/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"material-types",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Create requests",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcyNDE0MDczLCJpYXQiOjE3NzIzOTk2NzMsImp0aSI6IjhjZjRkNmY4MDlhNjRmNWJiZDBkYmQ5ZmIxMDY3ZTFkIiwidXNlcl9pZCI6IjMifQ.Z02y9c2ho6dtKNiozX4r1_QR0uIcVbodJOdFHGDgdZA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"center\": 2,\r\n  \"material_type\": 1,\r\n  \"estimated_quantity\": 10,\r\n  \"address\": \"Rua A, 200\",\r\n  \"pickup_date\": \"2026-03-10\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/requests/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"requests",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Accepted/Rejected - Request centers",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcyNDE0NDI5LCJpYXQiOjE3NzI0MDAwMjksImp0aSI6ImUwZmMyYWNmMmNmMDRjNzk5MGViMDE2ZjY1N2IwNDc2IiwidXNlcl9pZCI6IjUifQ.PMBKFrYIl7gn5cwytJwp-htqqgB8h1LMQ-q6vYGdNUQ",
+									"type": "string"
+								}
+							]
+						},
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{ \"status\": \"ACCEPTED\" }",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/requests/2/status/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"requests",
+								"2",
+								"status",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Requests  list by user",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcyNDE0MDczLCJpYXQiOjE3NzIzOTk2NzMsImp0aSI6IjhjZjRkNmY4MDlhNjRmNWJiZDBkYmQ5ZmIxMDY3ZTFkIiwidXNlcl9pZCI6IjMifQ.Z02y9c2ho6dtKNiozX4r1_QR0uIcVbodJOdFHGDgdZA",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/requests/my/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"requests",
+								"my",
+								""
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "Requests  list by center",
+					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzcyNDE0MjkzLCJpYXQiOjE3NzIzOTk4OTMsImp0aSI6IjRiODEyY2Q2NjlkMDRjNzc5ZjUzZjY4NjViZjFkNjljIiwidXNlcl9pZCI6IjQifQ.Q-P21jJvTFbzWriypmnMv3XhI1654pqFqoIlo6ZgCTk",
+									"type": "string"
+								}
+							]
+						},
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "http://127.0.0.1:8000/api/v1/requests/center/",
+							"protocol": "http",
+							"host": [
+								"127",
+								"0",
+								"0",
+								"1"
+							],
+							"port": "8000",
+							"path": [
+								"api",
+								"v1",
+								"requests",
+								"center",
+								""
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		}
+	]
+}
