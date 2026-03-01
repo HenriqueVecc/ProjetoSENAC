@@ -1,3 +1,5 @@
 from django.contrib import admin
+from .models import MaterialType, PickupRequest
 
-# Register your models here.
+admin.site.register(MaterialType)
+admin.site.register(PickupRequest)
