@@ -5,7 +5,6 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { Logo } from '@/components/Logo';
-import { Button } from '@/components/Button';
 
 export default function HomePage() {
   const router = useRouter();
@@ -14,8 +13,14 @@ export default function HomePage() {
   useEffect(() => {
     if (!isAuthenticated) {
       router.push('/signin');
+      return;
     }
-  }, [isAuthenticated, router]);
+    if (user?.type === 'empresa') {
+      router.push('/empresa/painel');
+    } else {
+      router.push('/centros');
+    }
+  }, [isAuthenticated, user, router]);
 
   const handleLogout = () => {
     logout();
@@ -30,7 +35,7 @@ export default function HomePage() {
 
   return (
     <div className="min-h-screen w-full flex flex-col bg-gradient-to-br from-blue-100 via-teal-100 to-green-100 relative overflow-hidden">
-      <div className="absolute inset-0 opacity-30">
+      <div className="absolute inset-0 opacity-15">
         <Image
           src="/img/arteGeral.png"
           alt="ReCiclo - Valorize a Reciclagem"
@@ -44,13 +49,36 @@ export default function HomePage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex items-center justify-between">
             <Logo />
-            <div className="flex items-center gap-4">
-              <span className="text-gray-700 hidden sm:block">
-                Olá, <strong className="capitalize">{userName}</strong>
-              </span>
-              <Button variant="secondary" onClick={handleLogout}>
-                Sair
-              </Button>
+            <div className="flex items-center gap-3">
+              <div className="hidden sm:flex items-center gap-2">
+                <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center">
+                  <span className="text-blue-600 font-semibold text-sm capitalize">
+                    {userName?.charAt(0).toUpperCase()}
+                  </span>
+                </div>
+                <span className="text-gray-700 font-medium">
+                  Olá, <strong className="capitalize text-gray-900">{userName}</strong>
+                </span>
+              </div>
+              <button
+                onClick={handleLogout}
+                className="w-10 h-10 rounded-full bg-gray-100 hover:bg-gray-200 flex items-center justify-center transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-gray-300"
+                title="Sair"
+              >
+                <svg
+                  className="w-5 h-5 text-gray-600"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    strokeWidth={2}
+                    d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"
+                  />
+                </svg>
+              </button>
             </div>
           </div>
         </div>

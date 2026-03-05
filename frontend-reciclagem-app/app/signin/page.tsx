@@ -14,6 +14,7 @@ export default function SignInPage() {
   const { login } = useAuth();
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [userType, setUserType] = useState<'usuario' | 'empresa'>('usuario');
   const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
   const [isLoading, setIsLoading] = useState(false);
@@ -45,7 +46,7 @@ export default function SignInPage() {
     setIsLoading(true);
 
     try {
-      const success = await login(email, password);
+      const success = await login(email, password, userType);
       if (success) {
         router.push('/home');
       } else {
@@ -95,6 +96,36 @@ export default function SignInPage() {
             )}
 
             <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="mb-4">
+                <label className="block text-sm font-medium text-gray-700 mb-3">
+                  Tipo de conta <span className="text-red-500">*</span>
+                </label>
+                <div className="flex gap-6">
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="userType"
+                      value="usuario"
+                      checked={userType === 'usuario'}
+                      onChange={(e) => setUserType(e.target.value as 'usuario' | 'empresa')}
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Usuário</span>
+                  </label>
+                  <label className="flex items-center gap-2 cursor-pointer">
+                    <input
+                      type="radio"
+                      name="userType"
+                      value="empresa"
+                      checked={userType === 'empresa'}
+                      onChange={(e) => setUserType(e.target.value as 'usuario' | 'empresa')}
+                      className="w-4 h-4 text-blue-600 border-gray-300 focus:ring-2 focus:ring-blue-500"
+                    />
+                    <span className="text-sm font-medium text-gray-700">Empresa</span>
+                  </label>
+                </div>
+              </div>
+
               <Input
                 label="Email"
                 type="email"
