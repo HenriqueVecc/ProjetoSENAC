@@ -1,46 +1,87 @@
 'use client';
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { User, AuthContextType } from '@/types';
+import { api } from '@/utils/api';
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-const MOCK_USERS = {
-  usuario: {
-    email: 'maria@yahoo.com.br',
-    password: '1234',
-  },
-  empresa: {
-    email: 'empresa@reciclagem.com',
-    password: '1234',
-  },
-};
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const loadUser = async () => {
+      try {
+        const token = typeof window !== 'undefined' ? localStorage.getItem('access_token') : null;
+        
+        if (token) {
+          try {
+            const userInfo = await api.getMe();
+            const type = userInfo.type === 'CENTER' ? 'empresa' : 'usuario';
+            const userData: User = { 
+              email: userInfo.email, 
+              name: userInfo.name,
+              type 
+            };
+            setUser(userData);
+            localStorage.setItem('user', JSON.stringify(userData));
+          } catch (error) {
+            console.error('Erro ao buscar dados do usuário da API:', error);
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+              setUser(JSON.parse(storedUser));
+            }
+          }
+        } else {
+          const storedUser = localStorage.getItem('user');
+          if (storedUser) {
+            setUser(JSON.parse(storedUser));
+          }
+        }
+      } catch (error) {
+        console.error('Erro ao carregar usuário:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    loadUser();
+  }, []);
 
   const login = async (
     email: string,
-    password: string,
-    userType: 'usuario' | 'empresa' = 'usuario'
+    password: string
   ): Promise<boolean> => {
-    await new Promise((resolve) => setTimeout(resolve, 500));
-
-    const mockUser = MOCK_USERS[userType];
-    if (email === mockUser.email && password === mockUser.password) {
-      setUser({ email, type: userType });
+    try {
+      await api.login(email, password);
+      
+      const userInfo = await api.getMe();
+      
+      const type = userInfo.type === 'CENTER' ? 'empresa' : 'usuario';
+      const userData: User = { 
+        email: userInfo.email, 
+        name: userInfo.name,
+        type 
+      };
+      
+      setUser(userData);
+      localStorage.setItem('user', JSON.stringify(userData));
       return true;
+    } catch (error) {
+      console.error('Erro no login:', error);
+      return false;
     }
-    if (email === MOCK_USERS.usuario.email && password === MOCK_USERS.usuario.password) {
-      setUser({ email, type: 'usuario' });
-      return true;
-    }
-    return false;
   };
 
   const logout = () => {
+    api.logout();
     setUser(null);
+    localStorage.removeItem('user');
   };
+
+  if (isLoading) {
+    return null; 
+  }
 
   return (
     <AuthContext.Provider

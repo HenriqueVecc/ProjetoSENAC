@@ -7,6 +7,8 @@ import { Input } from '@/components/Input';
 import { Button } from '@/components/Button';
 import { Logo } from '@/components/Logo';
 import { validateEmail, validatePassword } from '@/utils/validation';
+import { api } from '@/utils/api';
+import { applyPhoneMask, removePhoneMask } from '@/utils/phoneMask';
 
 export default function SignUpPage() {
   const router = useRouter();
@@ -18,6 +20,7 @@ export default function SignUpPage() {
   const [bairro, setBairro] = useState('');
   const [cidade, setCidade] = useState('');
   const [estado, setEstado] = useState('');
+  const [telefone, setTelefone] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
@@ -58,6 +61,18 @@ export default function SignUpPage() {
       return;
     }
 
+    if (userType === 'empresa') {
+      if (!telefone.trim()) {
+        setErrors((prev) => ({ ...prev, telefone: 'Telefone é obrigatório para empresas' }));
+        return;
+      }
+      const phoneNumbers = removePhoneMask(telefone);
+      if (phoneNumbers.length < 10) {
+        setErrors((prev) => ({ ...prev, telefone: 'Telefone deve ter pelo menos 10 dígitos' }));
+        return;
+      }
+    }
+
     if (!email) {
       setErrors((prev) => ({ ...prev, email: 'Email é obrigatório' }));
       return;
@@ -81,11 +96,25 @@ export default function SignUpPage() {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const address = `${rua}, ${numero} - ${bairro}, ${cidade} - ${estado}`;
+      const type = userType === 'empresa' ? 'CENTER' : 'USER';
+      
+      if (userType === 'empresa') {
+        const phoneWithoutMask = removePhoneMask(telefone);
+        await api.register(nome, email, password, type, {
+          name: nome,
+          address: address,
+          phone: phoneWithoutMask,
+          description: '',
+        });
+      } else {
+        await api.register(nome, email, password, type);
+      }
       
       router.push('/signin?registered=true');
-    } catch {
-      setErrors({ general: 'Erro ao realizar cadastro. Tente novamente.' });
+    } catch (error: any) {
+      const errorMessage = error?.message || 'Erro ao realizar cadastro. Tente novamente.';
+      setErrors({ general: errorMessage });
     } finally {
       setIsLoading(false);
     }
@@ -229,6 +258,22 @@ export default function SignUpPage() {
                     maxLength={2}
                   />
                 </div>
+                
+                {userType === 'empresa' && (
+                  <Input
+                    label="Telefone"
+                    type="text"
+                    value={telefone}
+                    onChange={(e) => {
+                      const masked = applyPhoneMask(e.target.value);
+                      setTelefone(masked);
+                    }}
+                    placeholder="(11) 99999-9999"
+                    required
+                    error={errors.telefone}
+                    maxLength={15}
+                  />
+                )}
               </div>
 
               <div className="space-y-4 mt-6">

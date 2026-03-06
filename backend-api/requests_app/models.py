@@ -30,6 +30,7 @@ class PickupRequest(models.Model):
 
     material_type = models.ForeignKey(MaterialType, on_delete=models.PROTECT)
     estimated_quantity = models.PositiveIntegerField()
+    quantity_unit = models.CharField(max_length=20, default='kg', blank=True)
     address = models.CharField(max_length=255)
     pickup_date = models.DateField()
 

@@ -5,49 +5,16 @@ import { useRouter } from 'next/navigation';
 import Image from 'next/image';
 import { useAuth } from '@/context/AuthContext';
 import { Logo } from '@/components/Logo';
-import { Button } from '@/components/Button';
 import { Solicitação } from '@/types';
-
-const MOCK_SOLICITACOES: Solicitação[] = [
-  {
-    id: '1',
-    centroId: '1',
-    centroNome: 'Centro de Reciclagem Verde',
-    tipoMaterial: 'Plástico',
-    quantidade: '15 kg',
-    enderecoColeta: 'Rua Exemplo, 123 - Centro, São Paulo - SP',
-    dataDesejada: '2024-12-20',
-    status: 'pendente',
-    usuarioEmail: 'maria@yahoo.com.br',
-  },
-  {
-    id: '2',
-    centroId: '1',
-    centroNome: 'Centro de Reciclagem Verde',
-    tipoMaterial: 'Papel',
-    quantidade: '20 kg',
-    enderecoColeta: 'Av. Principal, 456 - Bela Vista, São Paulo - SP',
-    dataDesejada: '2024-12-18',
-    status: 'pendente',
-    usuarioEmail: 'joao@example.com',
-  },
-  {
-    id: '3',
-    centroId: '1',
-    centroNome: 'Centro de Reciclagem Verde',
-    tipoMaterial: 'Vidro',
-    quantidade: '8 kg',
-    enderecoColeta: 'Rua das Flores, 789 - Vila Nova, São Paulo - SP',
-    dataDesejada: '2024-12-15',
-    status: 'aceita',
-    usuarioEmail: 'ana@example.com',
-  },
-];
+import { api } from '@/utils/api';
 
 export default function PainelEmpresaPage() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
-  const [solicitacoes, setSolicitacoes] = useState<Solicitação[]>(MOCK_SOLICITACOES);
+  const [solicitacoes, setSolicitacoes] = useState<Solicitação[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+  const [empresaNome, setEmpresaNome] = useState<string>('');
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -58,18 +25,66 @@ export default function PainelEmpresaPage() {
       router.push('/centros');
       return;
     }
+    
+    const loadData = async () => {
+      try {
+        setIsLoading(true);
+        
+        try {
+          const userInfo = await api.getMe();
+          if (userInfo.name) {
+            setEmpresaNome(userInfo.name);
+          }
+        } catch (err) {
+          console.error('Erro ao carregar dados do usuário:', err);
+        }
+        
+        const data = await api.getCenterRequests();
+        setSolicitacoes(data.map((r) => ({
+          id: String(r.id),
+          centroId: String(r.center),
+          centroNome: r.center_name,
+          tipoMaterial: r.material_name,
+          quantidade: `${r.estimated_quantity} ${r.quantity_unit || 'kg'}`,
+          enderecoColeta: r.address,
+          dataDesejada: r.pickup_date,
+          status: r.status === 'PENDING' ? 'pendente' : r.status === 'ACCEPTED' ? 'aceita' : 'rejeitada',
+          usuarioEmail: r.user_email,
+          usuarioNome: r.user_name,
+        })));
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar solicitações';
+        setError(errorMessage);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadData();
   }, [isAuthenticated, user, router]);
 
-  const handleAceitar = (id: string) => {
-    setSolicitacoes((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, status: 'aceita' as const } : s))
-    );
+  const handleAceitar = async (id: string) => {
+    try {
+      await api.updateRequestStatus(parseInt(id), 'ACCEPTED');
+      setSolicitacoes((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, status: 'aceita' as const } : s))
+      );
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao aceitar solicitação';
+      alert(errorMessage);
+    }
   };
 
-  const handleRejeitar = (id: string) => {
-    setSolicitacoes((prev) =>
-      prev.map((s) => (s.id === id ? { ...s, status: 'rejeitada' as const } : s))
-    );
+  const handleRejeitar = async (id: string) => {
+    try {
+      await api.updateRequestStatus(parseInt(id), 'REJECTED');
+      setSolicitacoes((prev) =>
+        prev.map((s) => (s.id === id ? { ...s, status: 'rejeitada' as const } : s))
+      );
+    } catch (err: unknown) {
+      const errorMessage = err instanceof Error ? err.message : 'Erro ao rejeitar solicitação';
+      alert(errorMessage);
+    }
   };
 
   const handleLogout = () => {
@@ -78,7 +93,9 @@ export default function PainelEmpresaPage() {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+ 
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString('pt-BR');
   };
 
@@ -107,7 +124,7 @@ export default function PainelEmpresaPage() {
             <Logo />
             <div className="flex items-center gap-3">
               <span className="text-gray-700 hidden sm:block font-medium">
-                Painel da Empresa
+                {empresaNome || user?.name || 'Painel da Empresa'}
               </span>
               <button
                 onClick={handleLogout}
@@ -137,13 +154,25 @@ export default function PainelEmpresaPage() {
         <div className="max-w-7xl mx-auto">
           <div className="mb-8">
             <h1 className="text-3xl md:text-4xl font-bold text-gray-800 mb-2">
-              Painel da Empresa
+              {empresaNome || user?.name || 'Painel da Empresa'}
             </h1>
             <p className="text-gray-600">
               Gerencie as solicitações de coleta recebidas
             </p>
           </div>
 
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+              <p className="text-gray-600">Carregando solicitações...</p>
+            </div>
+          ) : (
+            <>
           {pendentes.length > 0 && (
             <div className="mb-8">
               <h2 className="text-xl font-semibold text-gray-800 mb-4">
@@ -194,7 +223,10 @@ export default function PainelEmpresaPage() {
                             </div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
-                            <div className="text-sm text-gray-900">{solicitacao.usuarioEmail}</div>
+                            <div className="text-sm font-medium text-gray-900">
+                              {solicitacao.usuarioNome || 'N/A'}
+                            </div>
+                            <div className="text-sm text-gray-500">{solicitacao.usuarioEmail}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <div className="flex gap-2">
@@ -224,7 +256,7 @@ export default function PainelEmpresaPage() {
           {outras.length > 0 && (
             <div>
               <h2 className="text-xl font-semibold text-gray-800 mb-4">
-                Outras Solicitações
+                Status das Solicitações
               </h2>
               <div className="bg-white rounded-xl shadow-lg overflow-hidden">
                 <div className="overflow-x-auto">
@@ -242,6 +274,9 @@ export default function PainelEmpresaPage() {
                         </th>
                         <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Data Desejada
+                        </th>
+                        <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                          Usuário
                         </th>
                         <th className="px-6 py-4 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                           Status
@@ -266,6 +301,12 @@ export default function PainelEmpresaPage() {
                             <div className="text-sm text-gray-900">
                               {formatDate(solicitacao.dataDesejada)}
                             </div>
+                          </td>
+                          <td className="px-6 py-4 whitespace-nowrap">
+                            <div className="text-sm font-medium text-gray-900">
+                              {solicitacao.usuarioNome || 'N/A'}
+                            </div>
+                            <div className="text-sm text-gray-500">{solicitacao.usuarioEmail}</div>
                           </td>
                           <td className="px-6 py-4 whitespace-nowrap">
                             <span
@@ -306,6 +347,8 @@ export default function PainelEmpresaPage() {
                 Nenhuma solicitação recebida ainda
               </p>
             </div>
+          )}
+            </>
           )}
         </div>
       </main>

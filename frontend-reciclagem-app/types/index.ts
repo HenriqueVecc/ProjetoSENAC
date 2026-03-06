@@ -1,11 +1,12 @@
 export interface User {
   email: string;
+  name?: string;
   type: 'usuario' | 'empresa';
 }
 
 export interface AuthContextType {
   user: User | null;
-  login: (email: string, password: string, userType?: 'usuario' | 'empresa') => Promise<boolean>;
+  login: (email: string, password: string) => Promise<boolean>;
   logout: () => void;
   isAuthenticated: boolean;
 }
@@ -27,5 +28,6 @@ export interface Solicitação {
   dataDesejada: string;
   status: 'pendente' | 'aceita' | 'rejeitada';
   usuarioEmail?: string;
+  usuarioNome?: string;
 }
 

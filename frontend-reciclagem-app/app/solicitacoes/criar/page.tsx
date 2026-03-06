@@ -9,44 +9,7 @@ import { Button } from '@/components/Button';
 import { Input } from '@/components/Input';
 import { Navigation } from '@/components/Navigation';
 import { Centro } from '@/types';
-
-const MOCK_CENTROS: Centro[] = [
-  {
-    id: '1',
-    nome: 'Centro de Reciclagem Verde',
-    endereco: 'Rua das Flores, 123 - Centro, São Paulo - SP',
-    telefone: '(11) 3456-7890',
-  },
-  {
-    id: '2',
-    nome: 'EcoRecicla',
-    endereco: 'Av. Paulista, 1000 - Bela Vista, São Paulo - SP',
-    telefone: '(11) 9876-5432',
-  },
-  {
-    id: '3',
-    nome: 'Recicla Mais',
-    endereco: 'Rua Augusta, 500 - Consolação, São Paulo - SP',
-    telefone: '(11) 2345-6789',
-  },
-  {
-    id: '4',
-    nome: 'Centro Sustentável',
-    endereco: 'Rua dos Três Irmãos, 200 - Butantã, São Paulo - SP',
-    telefone: '(11) 4567-8901',
-  },
-];
-
-const TIPOS_MATERIAL = [
-  'Papel',
-  'Plástico',
-  'Vidro',
-  'Metal',
-  'Eletrônicos',
-  'Óleo de Cozinha',
-  'Pilhas e Baterias',
-  'Outros',
-];
+import { api } from '@/utils/api';
 
 export default function CriarSolicitacaoPage() {
   const router = useRouter();
@@ -55,10 +18,18 @@ export default function CriarSolicitacaoPage() {
   const [centroId, setCentroId] = useState(searchParams.get('centro') || '');
   const [tipoMaterial, setTipoMaterial] = useState('');
   const [quantidade, setQuantidade] = useState('');
-  const [enderecoColeta, setEnderecoColeta] = useState('');
+  const [unidade, setUnidade] = useState('kg');
+  const [rua, setRua] = useState('');
+  const [numero, setNumero] = useState('');
+  const [bairro, setBairro] = useState('');
+  const [cidade, setCidade] = useState('');
+  const [estado, setEstado] = useState('');
   const [dataDesejada, setDataDesejada] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isLoading, setIsLoading] = useState(false);
+  const [centros, setCentros] = useState<Centro[]>([]);
+  const [materialTypes, setMaterialTypes] = useState<Array<{ id: number; name: string }>>([]);
+  const [isLoadingData, setIsLoadingData] = useState(true);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -69,6 +40,32 @@ export default function CriarSolicitacaoPage() {
       router.push('/empresa/painel');
       return;
     }
+    
+    const loadData = async () => {
+      try {
+        setIsLoadingData(true);
+        const [centersData, materialsData] = await Promise.all([
+          api.getCenters(),
+          api.getMaterialTypes(),
+        ]);
+        
+        setCentros(centersData.map((c) => ({
+          id: String(c.id),
+          nome: c.name,
+          endereco: c.address,
+          telefone: c.phone,
+        })));
+        
+        setMaterialTypes(materialsData);
+      } catch (err: unknown) {
+        const errorMessage = err instanceof Error ? err.message : 'Erro ao carregar dados';
+        setErrors({ general: errorMessage });
+      } finally {
+        setIsLoadingData(false);
+      }
+    };
+    
+    loadData();
   }, [isAuthenticated, user, router]);
 
   const handleSubmit = async (e: FormEvent) => {
@@ -90,8 +87,39 @@ export default function CriarSolicitacaoPage() {
       return;
     }
 
-    if (!enderecoColeta.trim()) {
-      setErrors((prev) => ({ ...prev, enderecoColeta: 'Informe o endereço de coleta' }));
+    const quantidadeNum = parseFloat(quantidade);
+    if (isNaN(quantidadeNum) || quantidadeNum <= 0) {
+      setErrors((prev) => ({ ...prev, quantidade: 'Quantidade deve ser um número válido maior que zero' }));
+      return;
+    }
+
+    if (!rua.trim()) {
+      setErrors((prev) => ({ ...prev, rua: 'Rua é obrigatória' }));
+      return;
+    }
+
+    if (!numero.trim()) {
+      setErrors((prev) => ({ ...prev, numero: 'Número é obrigatório' }));
+      return;
+    }
+
+    if (!bairro.trim()) {
+      setErrors((prev) => ({ ...prev, bairro: 'Bairro é obrigatório' }));
+      return;
+    }
+
+    if (!cidade.trim()) {
+      setErrors((prev) => ({ ...prev, cidade: 'Cidade é obrigatória' }));
+      return;
+    }
+
+    if (!estado.trim()) {
+      setErrors((prev) => ({ ...prev, estado: 'Estado é obrigatório' }));
+      return;
+    }
+
+    if (estado.length !== 2) {
+      setErrors((prev) => ({ ...prev, estado: 'Estado deve ter 2 caracteres (UF)' }));
       return;
     }
 
@@ -103,11 +131,28 @@ export default function CriarSolicitacaoPage() {
     setIsLoading(true);
 
     try {
-      await new Promise((resolve) => setTimeout(resolve, 1000));
+      const materialType = materialTypes.find((m) => m.name === tipoMaterial);
+      if (!materialType) {
+        setErrors({ general: 'Tipo de material inválido' });
+        setIsLoading(false);
+        return;
+      }
+      
+      const enderecoCompleto = `${rua}, ${numero} - ${bairro}, ${cidade} - ${estado.toUpperCase()}`;
+      
+      await api.createRequest({
+        center: parseInt(centroId),
+        material_type: materialType.id,
+        estimated_quantity: parseInt(quantidade),
+        quantity_unit: unidade,
+        address: enderecoCompleto,
+        pickup_date: dataDesejada,
+      });
       
       router.push('/solicitacoes/minhas');
-    } catch {
-      setErrors({ general: 'Erro ao criar solicitação. Tente novamente.' });
+    } catch (error: unknown) {
+      const errorMessage = error instanceof Error ? error.message : 'Erro ao criar solicitação. Tente novamente.';
+      setErrors({ general: errorMessage });
     } finally {
       setIsLoading(false);
     }
@@ -197,12 +242,13 @@ export default function CriarSolicitacaoPage() {
                 <select
                   value={centroId}
                   onChange={(e) => setCentroId(e.target.value)}
+                  disabled={isLoadingData}
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     errors.centro ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  } ${isLoadingData ? 'bg-gray-100' : ''}`}
                 >
-                  <option value="">Selecione um centro</option>
-                  {MOCK_CENTROS.map((centro) => (
+                  <option value="">{isLoadingData ? 'Carregando...' : 'Selecione um centro'}</option>
+                  {centros.map((centro) => (
                     <option key={centro.id} value={centro.id}>
                       {centro.nome}
                     </option>
@@ -220,14 +266,15 @@ export default function CriarSolicitacaoPage() {
                 <select
                   value={tipoMaterial}
                   onChange={(e) => setTipoMaterial(e.target.value)}
+                  disabled={isLoadingData}
                   className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
                     errors.tipoMaterial ? 'border-red-500' : 'border-gray-300'
-                  }`}
+                  } ${isLoadingData ? 'bg-gray-100' : ''}`}
                 >
-                  <option value="">Selecione o tipo de material</option>
-                  {TIPOS_MATERIAL.map((tipo) => (
-                    <option key={tipo} value={tipo}>
-                      {tipo}
+                  <option value="">{isLoadingData ? 'Carregando...' : 'Selecione o tipo de material'}</option>
+                  {materialTypes.map((tipo) => (
+                    <option key={tipo.id} value={tipo.name}>
+                      {tipo.name}
                     </option>
                   ))}
                 </select>
@@ -236,25 +283,97 @@ export default function CriarSolicitacaoPage() {
                 )}
               </div>
 
-              <Input
-                label="Quantidade Estimada"
-                type="text"
-                value={quantidade}
-                onChange={(e) => setQuantidade(e.target.value)}
-                placeholder="Ex: 10 kg, 5 sacos, etc."
-                required
-                error={errors.quantidade}
-              />
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="md:col-span-2">
+                  <Input
+                    label="Quantidade Estimada"
+                    type="number"
+                    value={quantidade}
+                    onChange={(e) => setQuantidade(e.target.value)}
+                    placeholder="Ex: 10"
+                    required
+                    error={errors.quantidade}
+                    min="1"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    Unidade <span className="text-red-500">*</span>
+                  </label>
+                  <select
+                    value={unidade}
+                    onChange={(e) => setUnidade(e.target.value)}
+                    className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <option value="kg">kg</option>
+                    <option value="sacos">sacos</option>
+                    <option value="litros">litros</option>
+                    <option value="unidades">unidades</option>
+                    <option value="caixas">caixas</option>
+                  </select>
+                </div>
+              </div>
 
-              <Input
-                label="Endereço de Coleta"
-                type="text"
-                value={enderecoColeta}
-                onChange={(e) => setEnderecoColeta(e.target.value)}
-                placeholder="Rua, número, bairro, cidade - UF"
-                required
-                error={errors.enderecoColeta}
-              />
+              <div className="space-y-4">
+                <h3 className="text-sm font-medium text-gray-700">Endereço de Coleta</h3>
+                
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
+                    <Input
+                      label="Rua"
+                      type="text"
+                      value={rua}
+                      onChange={(e) => setRua(e.target.value)}
+                      placeholder="Nome da rua"
+                      required
+                      error={errors.rua}
+                    />
+                  </div>
+                  <Input
+                    label="Número"
+                    type="text"
+                    value={numero}
+                    onChange={(e) => setNumero(e.target.value)}
+                    placeholder="123"
+                    required
+                    error={errors.numero}
+                  />
+                </div>
+
+                <Input
+                  label="Bairro"
+                  type="text"
+                  value={bairro}
+                  onChange={(e) => setBairro(e.target.value)}
+                  placeholder="Nome do bairro"
+                  required
+                  error={errors.bairro}
+                />
+
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                  <div className="md:col-span-2">
+                    <Input
+                      label="Cidade"
+                      type="text"
+                      value={cidade}
+                      onChange={(e) => setCidade(e.target.value)}
+                      placeholder="Nome da cidade"
+                      required
+                      error={errors.cidade}
+                    />
+                  </div>
+                  <Input
+                    label="Estado (UF)"
+                    type="text"
+                    value={estado}
+                    onChange={(e) => setEstado(e.target.value.toUpperCase())}
+                    placeholder="SP"
+                    required
+                    error={errors.estado}
+                    maxLength={2}
+                  />
+                </div>
+              </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">

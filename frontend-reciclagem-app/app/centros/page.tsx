@@ -8,38 +8,15 @@ import { Logo } from '@/components/Logo';
 import { Button } from '@/components/Button';
 import { Navigation } from '@/components/Navigation';
 import { Centro } from '@/types';
-
-const MOCK_CENTROS: Centro[] = [
-  {
-    id: '1',
-    nome: 'Centro de Reciclagem Verde',
-    endereco: 'Rua das Flores, 123 - Centro, São Paulo - SP',
-    telefone: '(11) 3456-7890',
-  },
-  {
-    id: '2',
-    nome: 'EcoRecicla',
-    endereco: 'Av. Paulista, 1000 - Bela Vista, São Paulo - SP',
-    telefone: '(11) 9876-5432',
-  },
-  {
-    id: '3',
-    nome: 'Recicla Mais',
-    endereco: 'Rua Augusta, 500 - Consolação, São Paulo - SP',
-    telefone: '(11) 2345-6789',
-  },
-  {
-    id: '4',
-    nome: 'Centro Sustentável',
-    endereco: 'Rua dos Três Irmãos, 200 - Butantã, São Paulo - SP',
-    telefone: '(11) 4567-8901',
-  },
-];
+import { api } from '@/utils/api';
+import { formatPhoneForDisplay } from '@/utils/phoneMask';
 
 export default function CentrosPage() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
-  const [centros] = useState<Centro[]>(MOCK_CENTROS);
+  const [centros, setCentros] = useState<Centro[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -50,6 +27,25 @@ export default function CentrosPage() {
       router.push('/empresa/painel');
       return;
     }
+    
+    const loadCenters = async () => {
+      try {
+        setIsLoading(true);
+        const data = await api.getCenters();
+        setCentros(data.map((c) => ({
+          id: String(c.id),
+          nome: c.name,
+          endereco: c.address,
+          telefone: formatPhoneForDisplay(c.phone),
+        })));
+      } catch (err: any) {
+        setError(err?.message || 'Erro ao carregar centros');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadCenters();
   }, [isAuthenticated, user, router]);
 
   const handleLogout = () => {
@@ -130,8 +126,23 @@ export default function CentrosPage() {
             </p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {centros.map((centro) => (
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="text-center py-12">
+              <p className="text-gray-600">Carregando centros...</p>
+            </div>
+          ) : centros.length === 0 ? (
+            <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+              <p className="text-gray-600 text-lg">Nenhum centro de reciclagem disponível</p>
+            </div>
+          ) : (
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              {centros.map((centro) => (
               <div
                 key={centro.id}
                 className="bg-white rounded-xl shadow-lg p-6 hover:shadow-xl transition-shadow duration-200"
@@ -187,7 +198,8 @@ export default function CentrosPage() {
                 </Button>
               </div>
             ))}
-          </div>
+            </div>
+          )}
         </div>
       </main>
     </div>
