@@ -12,7 +12,7 @@ class MaterialTypeSerializer(serializers.ModelSerializer):
 class PickupRequestCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = PickupRequest
-        fields = ["id", "center", "material_type", "estimated_quantity", "address", "pickup_date"]
+        fields = ["id", "center", "material_type", "estimated_quantity", "quantity_unit", "address", "pickup_date"]
         read_only_fields = ["id"]
 
     def create(self, validated_data):
@@ -23,6 +23,12 @@ class PickupRequestCreateSerializer(serializers.ModelSerializer):
 class PickupRequestListSerializer(serializers.ModelSerializer):
     center_name = serializers.CharField(source="center.name", read_only=True)
     material_name = serializers.CharField(source="material_type.name", read_only=True)
+    user_email = serializers.EmailField(source="user.email", read_only=True)
+    user_name = serializers.SerializerMethodField()
+
+    def get_user_name(self, obj):
+        profile = getattr(obj.user, 'profile', None)
+        return profile.name if profile else None
 
     class Meta:
         model = PickupRequest
@@ -33,10 +39,13 @@ class PickupRequestListSerializer(serializers.ModelSerializer):
             "material_type",
             "material_name",
             "estimated_quantity",
+            "quantity_unit",
             "address",
             "pickup_date",
             "status",
             "created_at",
+            "user_email",
+            "user_name",
         ]
 
 

@@ -46,7 +46,7 @@ export default function SignInPage() {
     setIsLoading(true);
 
     try {
-      const success = await login(email, password, userType);
+      const success = await login(email, password);
       if (success) {
         router.push('/home');
       } else {

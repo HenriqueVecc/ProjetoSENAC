@@ -8,42 +8,7 @@ import { Logo } from '@/components/Logo';
 import { Button } from '@/components/Button';
 import { Navigation } from '@/components/Navigation';
 import { Solicitação } from '@/types';
-
-const MOCK_SOLICITACOES: Solicitação[] = [
-  {
-    id: '1',
-    centroId: '1',
-    centroNome: 'Centro de Reciclagem Verde',
-    tipoMaterial: 'Plástico',
-    quantidade: '15 kg',
-    enderecoColeta: 'Rua Exemplo, 123 - Centro, São Paulo - SP',
-    dataDesejada: '2024-12-20',
-    status: 'pendente',
-    usuarioEmail: 'maria@yahoo.com.br',
-  },
-  {
-    id: '2',
-    centroId: '2',
-    centroNome: 'EcoRecicla',
-    tipoMaterial: 'Papel',
-    quantidade: '20 kg',
-    enderecoColeta: 'Rua Exemplo, 123 - Centro, São Paulo - SP',
-    dataDesejada: '2024-12-18',
-    status: 'aceita',
-    usuarioEmail: 'maria@yahoo.com.br',
-  },
-  {
-    id: '3',
-    centroId: '3',
-    centroNome: 'Recicla Mais',
-    tipoMaterial: 'Vidro',
-    quantidade: '8 kg',
-    enderecoColeta: 'Rua Exemplo, 123 - Centro, São Paulo - SP',
-    dataDesejada: '2024-12-15',
-    status: 'rejeitada',
-    usuarioEmail: 'maria@yahoo.com.br',
-  },
-];
+import { api } from '@/utils/api';
 
 const getStatusColor = (status: Solicitação['status']) => {
   switch (status) {
@@ -74,7 +39,9 @@ const getStatusLabel = (status: Solicitação['status']) => {
 export default function MinhasSolicitacoesPage() {
   const router = useRouter();
   const { user, isAuthenticated, logout } = useAuth();
-  const [solicitacoes] = useState<Solicitação[]>(MOCK_SOLICITACOES);
+  const [solicitacoes, setSolicitacoes] = useState<Solicitação[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
     if (!isAuthenticated) {
@@ -85,6 +52,29 @@ export default function MinhasSolicitacoesPage() {
       router.push('/empresa/painel');
       return;
     }
+    
+    const loadRequests = async () => {
+      try {
+        setIsLoading(true);
+        const data = await api.getMyRequests();
+        setSolicitacoes(data.map((r) => ({
+          id: String(r.id),
+          centroId: String(r.center),
+          centroNome: r.center_name,
+          tipoMaterial: r.material_name,
+          quantidade: `${r.estimated_quantity} ${r.quantity_unit || 'kg'}`,
+          enderecoColeta: r.address,
+          dataDesejada: r.pickup_date,
+          status: r.status === 'PENDING' ? 'pendente' : r.status === 'ACCEPTED' ? 'aceita' : 'rejeitada',
+        })));
+      } catch (err: any) {
+        setError(err?.message || 'Erro ao carregar solicitações');
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    
+    loadRequests();
   }, [isAuthenticated, user, router]);
 
   const handleLogout = () => {
@@ -93,7 +83,8 @@ export default function MinhasSolicitacoesPage() {
   };
 
   const formatDate = (dateString: string) => {
-    const date = new Date(dateString);
+    const [year, month, day] = dateString.split('-').map(Number);
+    const date = new Date(year, month - 1, day);
     return date.toLocaleDateString('pt-BR');
   };
 
@@ -177,7 +168,17 @@ export default function MinhasSolicitacoesPage() {
            
           </div>
 
-          {solicitacoes.length === 0 ? (
+          {error && (
+            <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
+              {error}
+            </div>
+          )}
+
+          {isLoading ? (
+            <div className="bg-white rounded-xl shadow-lg p-12 text-center">
+              <p className="text-gray-600">Carregando solicitações...</p>
+            </div>
+          ) : solicitacoes.length === 0 ? (
             <div className="bg-white rounded-xl shadow-lg p-12 text-center">
               <svg
                 className="w-16 h-16 text-gray-400 mx-auto mb-4"
