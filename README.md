@@ -1,298 +1,616 @@
-﻿# ProjetoSENAC
+﻿# ♻️ ReCiclo
 
-## Integrantes
-- Henrique Del Vecchio
-- Jefferson Eidy Tokura
-- Paulo Pedro Franco Netto
-- Tatiane Sousa Da Costa
+O **ReCiclo** é uma aplicação web desenvolvida para conectar pessoas que desejam descartar materiais recicláveis a empresas e centros especializados em coleta e reciclagem.
 
-### ReCiclo
-Nosso Projeto tem como objetivo preparar um ambiente WEB, utilizando tecnologias de frontend, backend e banco de dados.
+O objetivo do projeto é facilitar o descarte correto de materiais recicláveis, aproximando usuários de centros de reciclagem e incentivando práticas mais sustentáveis.
 
-A proposta do ReCiclo tem como objetivo conectar pessoas que querem descartar materiais reciclaveis, conectando-os com empresas especializadas, facilitando o descarte e incentivando as tais práticas.
+---
 
-## O Repositório conta com um vídeo detalhado de como funciona o Projeto Rodando, mas caso não consiga ver, clique <a href="https://www.youtube.com/watch?v=tlgqIhMjiSg">aqui</a>
+## 👥 Integrantes
 
-# Como Execultar o Projeto
+* Henrique Del Vecchio
+* Jefferson Eidy Tokura
+* Paulo Pedro Franco Netto
+* Ricardo Lucas Tiepo Martins
+* João Henrique dos Santos Pereira
+* Tatiane Sousa Da Costa
+* Yasmim Marie Patricio Pereira
 
+---
 
-# Começando rodando o Backend
+## 🎥 Demonstração
 
-1 - Entrar na pasta
+O repositório conta com um vídeo demonstrando o funcionamento completo do sistema.
 
+▶️ [Clique aqui para assistir à demonstração](https://www.youtube.com/watch?v=tlgqIhMjiSg)
+
+---
+
+# 🚀 Como executar o projeto
+
+O projeto é dividido em três partes principais:
+
+* **Backend** — API desenvolvida com Django;
+* **Frontend** — Aplicação desenvolvida com Next.js;
+* **Banco de Dados** — SQLite.
+
+---
+
+# 🔧 Backend
+
+## 1. Acesse a pasta do backend
+
+```bash
 cd backend-api
+```
 
-2 - Criar ambiente virtual
+## 2. Crie o ambiente virtual
 
+```bash
 python -m venv venv
+```
 
-3 - Ativar ambiente
+## 3. Ative o ambiente virtual
 
+### Windows
+
+```bash
 .\venv\Scripts\activate
+```
 
-4 - Instalar dependências
+## 4. Instale as dependências
 
+```bash
 pip install -r requirements.txt
+```
 
-5 - Migrar banco
+## 5. Execute as migrations
 
+```bash
 python manage.py migrate
+```
 
-6 - Rodar servidor
+## 6. Inicie o servidor
 
+```bash
 python manage.py runserver
+```
 
+Após iniciar o servidor, o backend estará disponível em:
 
-# Banco de dados
+```text
+http://127.0.0.1:8000
+```
 
-Para inspecionar o banco de dados, você precisará ter o SQLite3 instalado na sua máquina
-Abra o seu terminal (ou prompt de comando) na mesma pasta onde o arquivo ReClico.db está salvo e siga os passos abaixo:
+---
 
-### Passo 1: Acessar o Banco de Dados
-No terminal, digite o seguinte comando para abrir o arquivo: bash sqlite3 ReClico.db
+# 🗄️ Banco de Dados
 
-Seu terminal agora mostrará o prompt do SQLite (algo como sqlite> ).
+O projeto utiliza **SQLite** como banco de dados.
 
-### Passo 2: Melhorar a visualização dos dados (Opcional)
-Antes de fazer consultas, ative o modo de colunas e os cabeçalhos para que os resultados fiquem fáceis de ler:
+Para inspecionar o banco manualmente, é necessário possuir o `sqlite3` instalado na máquina.
 
-sql .mode column .headers on
+Abra o terminal na mesma pasta onde está localizado o arquivo:
 
-### Passo 3: Verificar se as tabelas foram criadas
-Para listar todas as tabelas existentes no banco, use o comando:
+```text
+ReCiclo.db
+```
 
-sql .tables
+---
 
-Você deverá ver: centros, solicitacoes_coleta, sqlite_sequence, tipos_material e usuarios.
+## Acessando o banco
 
-### Passo 4: Checar a estrutura e as "Constraints" (Regras)
-Para ver exatamente o código SQL que gerou uma tabela e confirmar se as regras (como PRIMARY KEY, FOREIGN KEY e CHECK) estão corretas, use o comando .schema seguido do nome da tabela. Exemplo para verificar as regras das solicitações:
+Execute:
 
-sql .schema solicitacoes_coleta
+```bash
+sqlite3 ReCiclo.db
+```
 
-Observe na saída se os relacionamentos REFERENCES e a restrição CHECK (status IN ('PENDENTE', 'ACEITA', 'REJEITADA')) estão presentes.
+Após isso, o terminal exibirá o prompt do SQLite:
 
-Passo 5: Consultar os dados (Ver o banco num geral)
-Vamos verificar se os materiais base já estão cadastrados. Digite a seguinte query SQL:
+```text
+sqlite>
+```
 
-sql SELECT * FROM tipos_material;
+---
 
-Para ver se há alguma solicitação de coleta já registrada no sistema:
+## Melhorando a visualização dos dados
 
-sql SELECT * FROM solicitacoes_coleta;
+Opcionalmente, você pode ativar o modo de colunas e cabeçalhos:
 
-### Passo 6: Sair do SQLite Quando terminar sua análise, basta digitar:
+```sql
+.mode column
+.headers on
+```
 
-sql .quit
+---
 
+## Listando as tabelas
 
-# Parte do Frontend
+Para visualizar todas as tabelas existentes:
 
-Pré-requisitos
-Node.js versão 20.x
-npm ou yarn
-Backend Django rodando em http://127.0.0.1:8000 (veja o README do backend)
+```sql
+.tables
+```
 
-## Parte Fundamental é verificar a versão do Node.js, Caso esteja em uma versão abaixo do Node.js 20,
-recomento atulaziar, utilizando:
-"npx use 20"
+As principais tabelas do sistema são:
 
-3. Configurar variáveis de ambiente (Opcional)
-Crie um arquivo .env.local na raiz do projeto para configurar a URL da API:
+* `centros`
+* `solicitacoes_coleta`
+* `tipos_material`
+* `usuarios`
 
+---
+
+## Visualizando a estrutura de uma tabela
+
+Para verificar a estrutura e as regras de uma tabela:
+
+```sql
+.schema solicitacoes_coleta
+```
+
+Esse comando permite visualizar informações como:
+
+* `PRIMARY KEY`
+* `FOREIGN KEY`
+* `CHECK`
+* Relacionamentos entre tabelas
+
+---
+
+## Consultando dados
+
+Para visualizar os tipos de materiais cadastrados:
+
+```sql
+SELECT * FROM tipos_material;
+```
+
+Para visualizar as solicitações de coleta:
+
+```sql
+SELECT * FROM solicitacoes_coleta;
+```
+
+---
+
+## Sair do SQLite
+
+```sql
+.quit
+```
+
+---
+
+# 💻 Frontend
+
+## Pré-requisitos
+
+Antes de iniciar o frontend, verifique se possui:
+
+* Node.js **20.x**
+* npm ou yarn
+* Backend Django em execução
+
+O backend deve estar disponível em:
+
+```text
+http://127.0.0.1:8000
+```
+
+---
+
+## Verificando a versão do Node.js
+
+Execute:
+
+```bash
+node -v
+```
+
+Caso esteja utilizando uma versão inferior ao Node.js 20, atualize para uma versão compatível.
+
+Exemplo:
+
+```bash
+npx use 20
+```
+
+---
+
+## Configurando variáveis de ambiente
+
+Opcionalmente, crie um arquivo:
+
+```text
+.env.local
+```
+
+Na raiz do projeto.
+
+Adicione:
+
+```env
 NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api/v1
-Nota: Se não criar o arquivo, o sistema usará http://127.0.0.1:8000/api/v1 por padrão.
+```
 
-4. Instalar dependências
-Após garantir que está usando Node.js 20, instale as dependências do projeto:
+Caso o arquivo não seja criado, o sistema utilizará essa mesma URL como padrão.
 
+---
+
+## Instalando as dependências
+
+```bash
 npm install
+```
 
-5. Executar o projeto
-Importante: Certifique-se de que o backend Django está rodando antes de iniciar o frontend.
+---
 
-Para iniciar o servidor de desenvolvimento:
+## Executando o projeto
 
-Para iniciar o servidor de desenvolvimento:
+Certifique-se de que o backend esteja em execução.
 
+Em seguida:
+
+```bash
 npm run dev
-O aplicativo estará disponível em http://localhost:3000
+```
 
-6. Build para produção
-Para criar uma build de produção:
+A aplicação estará disponível em:
 
+```text
+http://localhost:3000
+```
+
+---
+
+## Build para produção
+
+Para gerar a build:
+
+```bash
 npm run build
+```
+
+Para iniciar a aplicação:
+
+```bash
 npm start
+```
 
-## Como Funciona o Sistema
+---
 
-### Integração com Backend
-O frontend está totalmente integrado com a API REST do backend Django:
+# ⚙️ Como funciona o sistema
 
-Autenticação JWT: Login e registro com tokens JWT
-API REST: Todas as operações são feitas através de endpoints REST
-Dados em tempo real: Todas as informações vêm do banco de dados do backend
+O ReCiclo conecta usuários que desejam descartar materiais recicláveis a empresas e centros especializados em coleta.
 
-### Tipos de Usuário
-O sistema suporta dois tipos de usuários:
+A aplicação possui dois tipos principais de usuários:
 
-Usuário (USER): Pessoas que desejam solicitar coleta de materiais recicláveis
-Empresa (CENTER): Centros de reciclagem que recebem e gerenciam solicitações de coleta
+| Tipo                  | Descrição                                  |
+| --------------------- | ------------------------------------------ |
+| 👤 Usuário (`USER`)   | Solicita a coleta de materiais recicláveis |
+| 🏢 Empresa (`CENTER`) | Recebe e gerencia solicitações de coleta   |
 
-### Fluxo do Sistema
-Para Usuários:
-Login/Cadastro:
+---
 
-O usuário faz login com email e senha (autenticação JWT)
-Ao se cadastrar, preenche: nome, endereço completo, email e senha
-O tipo de usuário é definido no cadastro (USER ou CENTER)
-Listagem de Centros:
+# 🔐 Autenticação
 
-Visualiza uma lista de centros de reciclagem disponíveis (carregados do backend)
-Cada centro exibe: Nome, Endereço, Telefone (formatado com máscara)
-Botão "Solicitar Coleta" para cada centro
-Criar Solicitação:
+O sistema utiliza **JWT (JSON Web Tokens)** para autenticação.
 
-Ao clicar em "Solicitar Coleta", o usuário preenche um formulário com:
-Seleção do centro de reciclagem (dropdown com centros cadastrados)
-Tipo de material (dropdown com materiais do banco: Papel, Plástico, Vidro, Metal, etc.)
-Quantidade estimada (campo numérico) + Unidade (dropdown: kg, sacos, litros, unidades, caixas)
-Endereço de coleta (campos separados):
-Rua (obrigatório)
-Número (obrigatório)
-Bairro (obrigatório)
-Cidade (obrigatório)
-Estado/UF (obrigatório, 2 caracteres)
-Data desejada (date picker)
-Os dados são enviados para a API e salvos no banco de dados
-Minhas Solicitações:
+Principais funcionalidades:
 
-O usuário visualiza todas as suas solicitações (carregadas do backend)
-Exibe: Centro, Material, Quantidade (com unidade), Data e Status
-Status possíveis:
-Pendente (amarelo)
-Aceita (verde)
-Rejeitada (vermelho)
-Para Empresas:
-Cadastro:
+* Login;
+* Cadastro de usuários;
+* Cadastro de empresas;
+* Persistência da sessão;
+* Logout;
+* Endpoint `/me/` para obter os dados do usuário autenticado.
 
-Ao se cadastrar como empresa, o sistema cria automaticamente:
-O usuário no sistema
-O perfil do tipo CENTER
-O centro de reciclagem (com os dados fornecidos: nome, endereço, telefone)
-Campos obrigatórios: nome, endereço completo, telefone, email e senha
-Login:
+---
 
-A empresa faz login com email e senha (autenticação JWT)
-Após login, é redirecionada automaticamente para o painel
-Painel da Empresa:
+# 👤 Fluxo do Usuário
 
-Visualiza todas as solicitações recebidas (carregadas do backend)
-Dividido em duas seções:
-Solicitações Pendentes: Solicitações aguardando resposta
-Status das Solicitações: Solicitações já aceitas ou rejeitadas
-Para cada solicitação exibe:
-Material, Quantidade (com unidade), Endereço de coleta, Data desejada
-Nome e email do usuário que solicitou
-Status atual
-Gerenciar Solicitações:
+## Cadastro e Login
+
+O usuário realiza o cadastro informando:
+
+* Nome;
+* Endereço;
+* E-mail;
+* Senha;
+* Tipo de conta.
+
+Após realizar o login, o usuário é direcionado para a listagem de centros de reciclagem.
+
+---
+
+## Centros de reciclagem
+
+O usuário pode visualizar os centros disponíveis.
+
+Cada centro exibe informações como:
+
+* Nome;
+* Endereço;
+* Telefone.
+
+Também é possível iniciar uma solicitação de coleta.
+
+---
+
+## Solicitação de coleta
+
+Ao solicitar uma coleta, o usuário informa:
+
+* Centro de reciclagem;
+* Tipo de material;
+* Quantidade estimada;
+* Unidade;
+* Endereço da coleta;
+* Data desejada.
+
+As unidades disponíveis incluem, por exemplo:
+
+* kg;
+* sacos;
+* litros;
+* unidades;
+* caixas.
+
+Após o envio, a solicitação é armazenada no banco de dados.
+
+---
+
+## Minhas solicitações
+
+O usuário pode acompanhar todas as suas solicitações.
+
+São exibidas informações como:
+
+* Centro;
+* Material;
+* Quantidade;
+* Data;
+* Status.
+
+Os status possíveis são:
+
+| Status       | Descrição            |
+| ------------ | -------------------- |
+| 🟡 Pendente  | Aguardando análise   |
+| 🟢 Aceita    | Solicitação aprovada |
+| 🔴 Rejeitada | Solicitação recusada |
+
+---
+
+# 🏢 Fluxo da Empresa
+
+## Cadastro
+
+Ao criar uma conta como empresa, o sistema cria automaticamente:
+
+* O usuário;
+* O perfil do tipo `CENTER`;
+* O centro de reciclagem.
+
+Os dados necessários incluem:
+
+* Nome;
+* Endereço;
+* Telefone;
+* E-mail;
+* Senha.
+
+---
+
+## Painel da empresa
+
+Após realizar o login, a empresa é direcionada para o painel administrativo.
+
+Nesse painel é possível visualizar:
+
+* Solicitações pendentes;
+* Solicitações aceitas;
+* Solicitações rejeitadas.
+
+Cada solicitação apresenta informações como:
+
+* Material;
+* Quantidade;
+* Endereço da coleta;
+* Data desejada;
+* Nome do usuário;
+* E-mail do usuário;
+* Status atual.
+
+---
+
+## Gerenciamento de solicitações
 
 Para cada solicitação pendente, a empresa pode:
-Aceitar: Aprova a solicitação (status muda para ACCEPTED)
-Rejeitar: Recusa a solicitação (status muda para REJECTED)
-As ações são enviadas para a API e atualizam o banco de dados em tempo real
 
-### Telas do Sistema
-Telas do Usuário:
-/centros - Listagem de centros de reciclagem
-/solicitacoes/criar - Criar nova solicitação de coleta
-/solicitacoes/minhas - Visualizar minhas solicitações
-Telas da Empresa:
-/empresa/painel - Painel de gerenciamento de solicitações
+### Aceitar
 
-### Navegação Condicional
-O sistema redireciona automaticamente os usuários baseado no tipo de conta:
+A solicitação é aprovada e seu status é atualizado para:
 
-Usuários são redirecionados para /centros após o login
-Empresas são redirecionadas para /empresa/painel após o login
-
-## Funcionalidades Implementadas
-
-### Autenticação
-Login com JWT (JSON Web Tokens)
-Registro de usuários (USER e CENTER)
-Logout com limpeza de tokens
-Persistência de sessão (localStorage)
-Endpoint /me/ para obter informações do usuário logado
-
-### Formulários
-Máscara de telefone brasileiro: (XX) XXXXX-XXXX ou (XX) XXXX-XXXX
-Campos separados de endereço (rua, número, bairro, cidade, estado)
-Validação de campos obrigatórios
-Campo de quantidade numérico + unidade (kg, sacos, litros, etc.)
-
-### Integração com API
-Listagem de centros de reciclagem (GET /centers/)
-Listagem de tipos de materiais (GET /material-types/)
-Criação de solicitações (POST /requests/)
-Listagem de minhas solicitações (GET /requests/my/)
-Listagem de solicitações do centro (GET /requests/center/)
-Atualização de status (PATCH /requests/:id/status/)
-
-### Exibição de Dados
-Formatação de telefone na listagem de centros
-Formatação de data (DD/MM/YYYY) sem problemas de fuso horário
-Exibição de quantidade com unidade (ex: "5 kg", "3 sacos")
-Exibição de nome e email do usuário nas solicitações
-
-### Credenciais de Teste
-Para testar, você pode:
-
-1.Criar uma conta de usuário através da página de cadastro
-2.Criar uma conta de empresa através da página de cadastro (o centro será criado automaticamente)
-3.Fazer login com as credenciais criadas
-
-### Tecnologias Utilizadas
-Next.js 16 - Framework React para produção
-React 19 - Biblioteca JavaScript para interfaces
-TypeScript - Superset JavaScript com tipagem estática
-Tailwind CSS 4 - Framework CSS utilitário
-Context API - Gerenciamento de estado de autenticação
-Fetch API - Comunicação com backend REST
-JWT - Autenticação baseada em tokens
-
-### Estrutura do Projeto
+```text
+ACCEPTED
 ```
+
+### Rejeitar
+
+A solicitação é recusada e seu status é atualizado para:
+
+```text
+REJECTED
+```
+
+Todas as alterações são enviadas para a API e persistidas no banco de dados.
+
+---
+
+# 🖥️ Telas do sistema
+
+## Usuário
+
+| Rota                   | Descrição                                |
+| ---------------------- | ---------------------------------------- |
+| `/centros`             | Listagem de centros de reciclagem        |
+| `/solicitacoes/criar`  | Criação de uma solicitação               |
+| `/solicitacoes/minhas` | Visualização das solicitações do usuário |
+
+## Empresa
+
+| Rota              | Descrição                               |
+| ----------------- | --------------------------------------- |
+| `/empresa/painel` | Painel de gerenciamento de solicitações |
+
+---
+
+# 🔄 Navegação condicional
+
+O sistema identifica o tipo de conta do usuário após a autenticação.
+
+### Usuários
+
+São direcionados para:
+
+```text
+/centros
+```
+
+### Empresas
+
+São direcionadas para:
+
+```text
+/empresa/painel
+```
+
+---
+
+# 🔌 Integração com API
+
+O frontend se comunica com a API REST do backend.
+
+Principais endpoints utilizados:
+
+| Método | Endpoint                | Descrição                           |
+| ------ | ----------------------- | ----------------------------------- |
+| GET    | `/centers/`             | Listagem de centros                 |
+| GET    | `/material-types/`      | Listagem de materiais               |
+| POST   | `/requests/`            | Criação de solicitações             |
+| GET    | `/requests/my/`         | Solicitações do usuário             |
+| GET    | `/requests/center/`     | Solicitações recebidas pela empresa |
+| PATCH  | `/requests/:id/status/` | Atualização do status               |
+
+---
+
+# ✨ Funcionalidades
+
+## Autenticação
+
+* Login com JWT;
+* Cadastro de usuários e empresas;
+* Persistência da sessão;
+* Logout;
+* Consulta do usuário autenticado.
+
+## Formulários
+
+* Validação de campos obrigatórios;
+* Máscara para telefone brasileiro;
+* Endereço dividido em campos;
+* Quantidade e unidade de medida.
+
+## Exibição de dados
+
+* Formatação de telefone;
+* Formatação de datas;
+* Exibição de quantidade com unidade;
+* Exibição de informações do usuário nas solicitações.
+
+---
+
+# 🧪 Credenciais de teste
+
+Para testar o sistema:
+
+1. Crie uma conta de usuário;
+2. Crie uma conta de empresa;
+3. Faça login utilizando as credenciais cadastradas.
+
+Ao cadastrar uma empresa, o centro de reciclagem é criado automaticamente.
+
+---
+
+# 🛠️ Tecnologias utilizadas
+
+### Frontend
+
+* **Next.js 16**
+* **React 19**
+* **TypeScript**
+* **Tailwind CSS 4**
+* **Context API**
+
+### Backend
+
+* **Django**
+* **Django REST Framework**
+* **JWT**
+
+### Banco de Dados
+
+* **SQLite**
+
+---
+
+# 📁 Estrutura do Frontend
+
+```text
 frontend-reciclagem-app/
-├── app/                    # Páginas e rotas (App Router)
-│   ├── centros/           # Listagem de centros de reciclagem
-│   ├── solicitacoes/      # Solicitações de coleta
-│   │   ├── criar/        # Formulário de criação de solicitação
-│   │   └── minhas/       # Listagem de solicitações do usuário
-│   ├── empresa/           # Área da empresa
-│   │   └── painel/       # Painel de gerenciamento de solicitações
-│   ├── signin/            # Tela de login
-│   ├── signup/            # Tela de cadastro
-│   ├── home/              # Página inicial
-│   └── layout.tsx         # Layout principal
-├── components/            # Componentes reutilizáveis
-│   ├── Button.tsx         # Botão customizado
-│   ├── Input.tsx          # Input customizado
-│   ├── Logo.tsx           # Logo da aplicação
-│   └── Navigation.tsx     # Componente de navegação
-├── context/               # Context API
-│   └── AuthContext.tsx    # Context de autenticação (JWT)
-├── types/                 # Definições TypeScript
-│   └── index.ts           # Interfaces e tipos
-└── utils/                 # Funções utilitárias
-    ├── api.ts             # Cliente API REST
-    ├── phoneMask.ts       # Máscara de telefone
-    └── validation.ts      # Funções de validação
+│
+├── app/                         # Páginas e rotas
+│   ├── centros/                 # Centros de reciclagem
+│   ├── solicitacoes/            # Solicitações
+│   │   ├── criar/               # Criação de solicitação
+│   │   └── minhas/              # Solicitações do usuário
+│   ├── empresa/
+│   │   └── painel/              # Painel da empresa
+│   ├── signin/                  # Login
+│   ├── signup/                  # Cadastro
+│   ├── home/                    # Página inicial
+│   └── layout.tsx               # Layout principal
+│
+├── components/                  # Componentes reutilizáveis
+│   ├── Button.tsx
+│   ├── Input.tsx
+│   ├── Logo.tsx
+│   └── Navigation.tsx
+│
+├── context/
+│   └── AuthContext.tsx          # Contexto de autenticação
+│
+├── types/
+│   └── index.ts                 # Tipos e interfaces
+│
+└── utils/
+    ├── api.ts                   # Cliente da API
+    ├── phoneMask.ts             # Máscara de telefone
+    └── validation.ts            # Validações
 ```
 
+---
 
-### Scripts Disponíveis
--npm run dev - Inicia o servidor de desenvolvimento
--npm run build - Cria build de produção
--npm start - Inicia o servidor de produção
--npm run lint - Executa o linter
+# 📜 Scripts disponíveis
+
+| Comando         | Descrição                            |
+| --------------- | ------------------------------------ |
+| `npm run dev`   | Inicia o servidor de desenvolvimento |
+| `npm run build` | Gera a build de produção             |
+| `npm start`     | Inicia a aplicação em produção       |
+| `npm run lint`  | Executa o linter                     |
+
+---
