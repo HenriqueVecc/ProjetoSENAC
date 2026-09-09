@@ -40,3 +40,11 @@ venv
 *.tsbuildinfo
 next-env.d.ts
 backend-api/db.sqlite3
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Vídeos locais
+Apresentação ReCiclo SENAC.mp4
