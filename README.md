@@ -12,10 +12,8 @@ O objetivo do projeto é facilitar o descarte correto de materiais recicláveis,
 * Henrique Del Vecchio
 * Jefferson Eidy Tokura
 * Paulo Pedro Franco Netto
-* Ricardo Lucas Tiepo Martins
 * João Henrique dos Santos Pereira
 * Tatiane Sousa Da Costa
-* Yasmim Marie Patricio Pereira
 
 ---
 
