@@ -8,6 +8,7 @@ O objetivo do projeto é facilitar o descarte correto de materiais recicláveis,
 
 ## 👥 Integrantes
 
+
 * Henrique Del Vecchio
 * Jefferson Eidy Tokura
 * Paulo Pedro Franco Netto
@@ -22,7 +23,7 @@ O objetivo do projeto é facilitar o descarte correto de materiais recicláveis,
 
 O repositório conta com um vídeo demonstrando o funcionamento completo do sistema.
 
-▶️ [Clique aqui para assistir à demonstração](https://www.youtube.com/watch?v=tlgqIhMjiSg)
+▶️ [Clique aqui para assistir à demonstração](https://youtu.be/0DqJNmdW75o)
 
 ---
 
